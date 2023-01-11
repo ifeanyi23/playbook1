@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: "Check iam users"
-          command: aws iam list-users
+          command: aws iam list-users --profile udacityLab2
             
       - run:
           name: "Create Cloudformation Stack"
