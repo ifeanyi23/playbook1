@@ -5,22 +5,54 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
+  create-infrastructure:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: cimg/base:stable
+      - image: amazon/aws-cli
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "Create Cloudformation Stack"
+          command: | 
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name joeStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+              # You can get this ID in the section where you registered the SSH Key
+              fingerprints: ["41:3f:cb:cb:2f:80:c7:93:a5:00:ad:d0:58:47:0e:b1"]
+      - run:
+          name: "Get ip address of instance"
+          command: | 
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Udacity,Values=Project" \
+              --output text --profile udacityLab2 >> inventory
+      - run:
+          name: Install Ansible
+          command: |
+            # Install Ansible
+            apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            ansible-playbook -i inventory main-remote.yml
+
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  infrastructure-workflow:
     jobs:
-      - say-hello
+      - create-infrastructure
+      - configure_infrastructure:
+          requires:
+            - create-infrastructure
