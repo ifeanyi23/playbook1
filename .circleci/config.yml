@@ -27,7 +27,7 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Udacity,Values=Project" \
-              --output text --profile udacityLab2 >> inventory
+              --output text >> inventory
               
   configure_infrastructure: 
     docker:
