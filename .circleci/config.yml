@@ -13,11 +13,7 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
-      - checkout
-      - run:
-          name: "Check iam users"
-          command: aws iam list-users --profile udacityLab2
-            
+      - checkout      
       - run:
           name: "Create Cloudformation Stack"
           command: | 
