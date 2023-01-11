@@ -50,4 +50,4 @@ workflows:
       # - create-infrastructure
       - configure_infrastructure
           # requires:
-          #   - create-infrastructure
+          #   - create-infrastructure -e
