@@ -31,13 +31,6 @@ jobs:
       - add_ssh_keys:
               # You can get this ID in the section where you registered the SSH Key
               fingerprints: ["41:3f:cb:cb:2f:80:c7:93:a5:00:ad:d0:58:47:0e:b1"]
-      # - run:
-      #     name: "Get ip address of instance"
-      #     command: | 
-      #       aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:Udacity,Values=Project" \
-      #         --output text --profile udacityLab2 >> inventory
       - run:
           name: Install Ansible
           command: |
