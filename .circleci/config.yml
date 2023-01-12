@@ -39,7 +39,26 @@ jobs:
       - run:
           name: Run Playbook and Configure server
           command: |
-            ansible-playbook -i inventory main-remote.yml --private-key ubuntuKey.pem
+            ansible-playbook -i inventory main-remote.yml
+  smoke-test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install curl
+          command: apk add --update curl
+      - run:
+          name: Smoke Test
+          command: |
+            URL = "https://blog.udacity.com/"
+            if curl -s --head ${URL}
+            then
+              exit 0
+            else
+              exit 1
+            fi  
+
 
 
 # Invoke jobs via workflows
@@ -48,6 +67,6 @@ workflows:
   infrastructure-workflow:
     jobs:
       # - create-infrastructure
-      - configure_infrastructure
-          # requires:
-          #   - create-infrastructure -e
+      # - configure_infrastructure
+      - smoke-test
+          
