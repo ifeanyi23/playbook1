@@ -52,7 +52,7 @@ jobs:
             ansible-playbook -i inventory main-remote.yml
   smoke-test:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
