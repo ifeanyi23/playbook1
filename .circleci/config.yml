@@ -59,7 +59,23 @@ jobs:
           name: Test Job
           command: return 1
       - destroy-environment
-      
+  create_and_deploy_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: "Create cloudfront stack"
+          command: |
+            aws cloudformation deploy \
+            --template-file bucket.yml \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: "Upload all contents of current directory to the s3 bucket"
+          command: |
+            aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+      - destroy-environment
   # smoke-test:
   #   docker:
   #     - image: alpine:latest
@@ -86,9 +102,10 @@ jobs:
 workflows:
   infrastructure-workflow:
     jobs:
-      - create-infrastructure
-      # - configure_infrastructure
-      - smoke-test:
-          requires:
-            - create-infrastructure
+      - create_and_deploy_front_end
+      # - create-infrastructure
+      # # - configure_infrastructure
+      # - smoke-test:
+      #     requires:
+      #       - create-infrastructure
           
